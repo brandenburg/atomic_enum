@@ -17,9 +17,9 @@ enum FooBar {
 #[test]
 fn test_no_std_use() {
     let fb = AtomicFooBar::new(FooBar::Foo);
-    let prev = fb.compare_and_swap(FooBar::Foo, FooBar::Bar, Ordering::SeqCst);
-    assert_eq!(prev, FooBar::Foo);
+    let prev = fb.compare_exchange(FooBar::Foo, FooBar::Bar, Ordering::SeqCst, Ordering::SeqCst);
+    assert_eq!(prev, Ok(FooBar::Foo));
 
-    let prev_fail = fb.compare_and_swap(FooBar::Foo, FooBar::Bar, Ordering::SeqCst);
-    assert_eq!(prev_fail, FooBar::Bar);
+    let prev_fail = fb.compare_exchange(FooBar::Foo, FooBar::Bar, Ordering::SeqCst, Ordering::SeqCst);
+    assert_eq!(prev_fail, Err(FooBar::Bar));
 }

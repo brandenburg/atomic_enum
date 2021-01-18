@@ -226,31 +226,6 @@ fn atomic_enum_swap(ident: &Ident) -> TokenStream2 {
     }
 }
 
-fn atomic_enum_compare_and_swap(ident: &Ident) -> TokenStream2 {
-    quote! {
-        /// Stores a value into the atomic if the current value is the same as the `current` value.
-        ///
-        /// The return value is always the previous value. If it is equal to `current`, then the value was updated.
-        ///
-        /// `compare_and_swap` also takes an `Ordering` argument which describes the memory ordering of this operation.
-        /// Notice that even when using `AcqRel`, the operation might fail and hence just perform an `Acquire` load, but
-        /// not have `Release` semantics. Using `Acquire` makes the store part of this operation `Relaxed` if it happens,
-        /// and using `Release` makes the load part `Relaxed`.
-        pub fn compare_and_swap(
-            &self,
-            current: #ident,
-            new: #ident,
-            order: core::sync::atomic::Ordering
-        ) -> #ident {
-            Self::from_usize(self.0.compare_and_swap(
-                Self::to_usize(current),
-                Self::to_usize(new),
-                order
-            ))
-        }
-    }
-}
-
 fn atomic_enum_compare_exchange(ident: &Ident) -> TokenStream2 {
     quote! {
         /// Stores a value into the atomic if the current value is the same as the `current` value.
@@ -420,7 +395,6 @@ pub fn atomic_enum(args: TokenStream, input: TokenStream) -> TokenStream {
     let atomic_enum_load = atomic_enum_load(&ident);
     let atomic_enum_store = atomic_enum_store(&ident);
     let atomic_enum_swap = atomic_enum_swap(&ident);
-    let atomic_enum_compare_and_swap = atomic_enum_compare_and_swap(&ident);
     let atomic_enum_compare_exchange = atomic_enum_compare_exchange(&ident);
     let atomic_enum_compare_exchange_weak = atomic_enum_compare_exchange_weak(&ident);
 
@@ -436,7 +410,6 @@ pub fn atomic_enum(args: TokenStream, input: TokenStream) -> TokenStream {
             #atomic_enum_load
             #atomic_enum_store
             #atomic_enum_swap
-            #atomic_enum_compare_and_swap
             #atomic_enum_compare_exchange
             #atomic_enum_compare_exchange_weak
         }
